@@ -1,44 +1,61 @@
-/**
- * 模型基类
- */
-export class BaseEntity {
-  @Field({ display: "ID" })
-  id: number;
-  @Field({ display: "创建时间" })
-  createTime: Date;
-  @Field({ display: "修改时间" })
-  updateTime: Date;
-}
+import {
+  classNameOf,
+  extendMap,
+  NullableOrUndef,
+  valueOrDefault,
+} from "../util/type";
+import { TableOptions } from "./base";
+import { Symbols } from "./runtime";
+import { IField, IModel, JoinOptions } from "./types";
 
-export interface TableMeta {
-  name: string;
-}
 
-export function Table(meta: TableMeta) {
+
+export function Table(tableOptions: TableOptions) {
   return function (constructor: Function) {
-    constructor.prototype.__table__ = meta;
+    const modelId = classNameOf(constructor);
+    let fields: Map<string, IField> = new Map();
+    // if is extended from parent, then load parent's fields
+    let parent = constructor.prototype.__proto__;
+    if (parent) {
+      let parentModelId = classNameOf(parent.constructor);
+      console.debug(`${modelId} extends ${parentModelId}`);
+      let parentFields = Symbols.getModelFields(parentModelId);
+      console.log("parentFields", parentFields);
+      fields = parentFields;
+    }
+
+    const model: IModel = {
+      id: modelId,
+      table: tableOptions.name,
+      fields: new Map(),
+    };
+    Symbols.addModel(model);
+    Symbols.insertModelFields(modelId, fields);
   };
 }
 
-export interface FieldMeta {
-  display: string;
-}
+export function Field(meta: IField) {
+  function processJoin(join: NullableOrUndef<JoinOptions>): JoinOptions | null {
+    if (!join) {
+      return null;
+    }
+    return join;
+  }
 
-export function Field(meta: FieldMeta) {
   return (targetObject: Object, propertyKey: string) => {
     if (
       typeof targetObject.constructor.prototype["__fields__"] === "undefined"
     ) {
       targetObject.constructor.prototype["__fields__"] = [];
     }
-    console.log(` targetObject.constructor.prototype["__fields__"]`, targetObject.constructor.prototype["__fields__"]);
-    
-    let _tmp = {
-        'id': propertyKey,
-        ...meta
-    }
-    console.log("tmp",_tmp);
-    
-    targetObject.constructor.prototype["__fields__"].push(_tmp);
+
+    let field: Required<IField> = {
+      id: propertyKey,
+      display: meta.display,
+      editable: valueOrDefault(meta.editable, true),
+      join: processJoin(meta.join),
+    };
+
+    Symbols.upsertModelField(classNameOf(targetObject.constructor), field);
   };
 }

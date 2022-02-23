@@ -1,15 +1,17 @@
 #!/usr/bin/env node
 
-import { JlMember } from "./workspace/sample";
+import { Symbols } from "./model/runtime";
+import { replacer } from "./util/type";
+import { JlMember, JlMemberWechat } from "./workspace/sample";
 
-function rephrase(t: Function) {
-  let fields = t.prototype["__fields__"];
-  let table = t.prototype["__table__"];
-
-  console.log("rephrase out:", {
-    table,
-    fields,
-  });
+class Rephraser {
+  rephraseName(_: Function) {
+    return this;
+  }
 }
 
-rephrase(JlMember);
+new Rephraser()
+  .rephraseName(JlMemberWechat) //
+  .rephraseName(JlMember);
+
+console.log(JSON.stringify(Symbols, replacer, 2));
