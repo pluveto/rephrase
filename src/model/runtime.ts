@@ -3,17 +3,6 @@ import { IField, IModel } from "./types";
 
 // Save model infomations
 class SymbolTable {
-  mergeModel(model: IModel) {
-    let existing = this.ModelMap.get(model.id);
-    if (existing) {
-      extendMap(existing.fields, model.fields);
-      existing.id = existing.id || model.id;
-      existing.label = existing.label || model.label;
-      existing.table = existing.table || model.table;
-    } else {
-      this.addModel(model);
-    }
-  }
   // == Properties ==
 
   ModelMap: Map<string, IModel>;
@@ -33,6 +22,27 @@ class SymbolTable {
     console.debug(`add model: ${model.id}`);
   }
 
+  getModel(modelId: string): IModel {
+    if (!this.ModelMap.has(modelId)) {
+      throw new Error("model not found: " + modelId);
+    }
+    return this.ModelMap.get(modelId)!;
+  }
+  mergeModel(model: IModel) {
+    let existing = this.ModelMap.get(model.id);
+    if (existing) {
+      extendMap(existing.fields, model.fields);
+      for (let key in existing) {
+        if (key == "fields") {
+          continue;
+        }
+        existing[key as keyof IModel] = (existing[key as keyof IModel] ||
+          model[key as keyof IModel]) as any;
+      }
+    } else {
+      this.addModel(model);
+    }
+  }
   // -- model's fields operations --
   // insert fields in front of the model fields
   insertModelFields(modelId: string, source: Map<string, IField>) {

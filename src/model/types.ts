@@ -6,7 +6,7 @@ export interface JoinOptions {
   condition: [string, string];
 }
 
-export type componentType = "input" | "textarea" | "integer" | "avatar";
+export type componentType = "input" | "textarea" | "integer" | "avatar" | "switch";
 
 export type FieldOptions = Partial<IField>;
 

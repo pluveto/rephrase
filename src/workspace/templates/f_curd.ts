@@ -1,18 +1,17 @@
 import chalk from "chalk";
-import { t } from "../../util/template";
+import { IndentType, t } from "../../util/template";
 import { classNameOf } from "../../util/type";
 import {
   renderColumn,
-  renderComponent,
+  renderFormComponent as renderComponent,
   renderFieldRule,
 } from "../util/component";
 
-export function renderCurd(f: Function) {
-  let modelId = classNameOf(f);
+export function renderCurd(modelCtor: Function) {
+  let modelId = classNameOf(modelCtor);
   let model = t.model(modelId);
   let fields = t.fields(modelId);
 
-  console.log(chalk.green(`generating curd of : ${modelId}`));
   return `
 <template>
 	<cl-crud @load="onLoad">
@@ -25,7 +24,23 @@ export function renderCurd(f: Function) {
 		</el-row>
 
 		<el-row>
-			<cl-table v-bind="table" />
+			<cl-table v-bind="table">
+			${fields
+        .filter((f) => f.componentType == "avatar")
+        .map((f) => {
+          return `
+			<!-- ${f.label} -->
+			<template #column-${f.id}="{ scope }">
+				<cl-avatar
+					shape="square"
+					size="medium"
+					:src="scope.row.${f.id}"
+					:style="{ margin: 'auto' }"
+				/>
+			</template>`;
+        })
+        .join("")}
+			</cl-table>
 		</el-row>
 
 		<el-row type="flex">
@@ -48,26 +63,29 @@ export default defineComponent({
 	setup() {
 		const { service } = useCool();
 
+		// 表单值
+		const form = reactive<any>({
+		});
+
 		// 新增、编辑配置
 		const upsert = reactive<Upsert>({
 			dialog: {
 				width: "800px"
 			},
 			items: [
-			${fields
-        .filter((f) => f.editable && !f.extended && !f.join)
-        .map((f) => {
-          return `
+				${fields
+          .filter((f) => f.editable && !f.extended && !f.join)
+          .map((f) => {
+            return `
 				{
 					prop: "${f.id}",
 					label: "${f.label}",
 					span: ${f.fieldSpan || 20},
-					component: ${renderComponent(f)})},
-					rules: ${renderFieldRule(f)}
-				},
-		`;
-        })
-        .join(",")}
+					component: ${renderComponent(f)},
+					rules: ${renderFieldRule(f)},
+				},`;
+          })
+          .join("")}
 			]
 		});
 
@@ -83,14 +101,14 @@ export default defineComponent({
 				{
 					type: "selection",
 					width: 60
-				},
-				${fields
+				},${fields
           .filter((f) => !f.extended && !f.join)
           .sort((a, b) => a.columnIndex - b.columnIndex)
           .map((f) => renderColumn(f))
-          .join(",")}
+          .join(",")},
 				{
 					label: "操作",
+					buttons: ["edit", "delete"],
 					type: "op"
 				}
 			]

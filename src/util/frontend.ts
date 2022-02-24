@@ -6,6 +6,8 @@ export function inferComponentType(typeName: string): componentType {
       return "input";
     case "Number":
       return "integer";
+    case "Boolean":
+      return "switch";
     default:
       return "input"
   }

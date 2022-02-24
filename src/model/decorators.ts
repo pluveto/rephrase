@@ -33,7 +33,7 @@ export function Model(modelOptions: ModelOptions) {
     }
 
     const model: IModel = (() => {
-      let moduleName = modelOptions.module || "App";
+      let moduleName = modelOptions.module || "";
 
       function buildTableName(moduleName: string, modelId: string): string {
         return moduleName.toLowerCase() + "_" + snakeCase(modelId);

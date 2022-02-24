@@ -1,6 +1,6 @@
 import { componentType, IField } from "../../model/types";
 
-export function renderComponent(f: IField): string {
+export function renderFormComponent(f: IField): string {
   let props = {
     placeholder: "请填写" + f.label,
   } as any;
@@ -20,13 +20,21 @@ export function renderComponent(f: IField): string {
       case "integer":
         return "el-number";
 
+      case "switch":
+        return "el-switch";
+
       case "avatar":
-        throw new Error("avatar not yet supported");
+        props = {
+          ...props,
+          text: "选择头像",
+          icon: "el-icon-picture",
+        };
+        return "cl-upload";
     }
   })(props);
   return `{
     name: "${name}",
-    props: ${JSON.stringify(props, null, 2)}
+    props: ${JSON.stringify(props)}
   }`;
 }
 
@@ -61,5 +69,5 @@ export function renderColumn(f: IField): string {
       return ret;
     })(),
   };
-  return JSON.stringify(column, null, 2);
+  return JSON.stringify(column, null, "\t");
 }

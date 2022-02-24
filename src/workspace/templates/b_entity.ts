@@ -2,11 +2,9 @@ import { classNameOf } from "../../util/type";
 import chalk from "chalk";
 import { t } from "../../util/template";
 
-export function genEntity(f: Function) {
-  let modelId = classNameOf(f);
+export function renderEntity(modelCtor: Function) {
+  let modelId = classNameOf(modelCtor);
   let model = t.model(modelId);
-
-  console.log(chalk.green(`generating entity: ${modelId}`));
 
   return `
 import { EntityModel } from '@midwayjs/orm';
@@ -17,7 +15,7 @@ import { Column } from 'typeorm';
  * ${model.label}
  */
 @EntityModel('${model.table}')
-export class ${model.id}Entity extends BaseEntity {
+export class ${model.module}${model.id}Entity extends BaseEntity {
 ${t
   .fields(modelId)
   .filter((f) => f.editable && !f.extended && !f.join)

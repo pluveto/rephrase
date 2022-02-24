@@ -2,22 +2,10 @@
 
 import { Symbols } from "./model/runtime";
 import { replacer } from "./util/type";
-import { Member, MemberWechat } from "./workspace/models";
-import { genEntity as renderEntity } from "./workspace/templates/b_entity";
-import { renderCurd } from "./workspace/templates/f_curd";
-
-class Rephraser {
-  rephraseName(_: Function) {
-    return this;
-  }
-}
-
-
+import { Member } from "./workspace/models";
 
 console.log(JSON.stringify(Symbols, replacer, 2));
 
-let entityOutput = renderEntity(Member);
-console.log(entityOutput);
+import { cw } from "./workspace/util/code_writer";
 
-let curdOutput = renderCurd(Member);
-console.log(curdOutput);
+cw.outputFrontCurd(Member).outputBackEntity(Member);

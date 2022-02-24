@@ -5,8 +5,9 @@
 ## Usage
 
 ```shell
-npm install -g typescript
-npm install -g ts-node
+npm i -g typescript
+npm i -g ts-node
+npm i -g prettier
 ```
 
 ```

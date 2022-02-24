@@ -12,7 +12,7 @@ export class BaseEntity {
   updateTime: Date;
 }
 
-@Model({ table: "jl_member_wechat", label: "会员微信" })
+@Model({ module: "Jl", label: "会员微信" })
 export class MemberWechat extends BaseEntity {
   @Field({ label: "用户ID" })
   memberId: string;
@@ -20,7 +20,7 @@ export class MemberWechat extends BaseEntity {
   openId: string;
 }
 
-@Model({ table: "jl_member", label: "会员" })
+@Model({ module: "Jl", table: "jl_member", label: "会员" })
 export class Member extends BaseEntity {
   @Field({ label: "昵称" })
   screenName: string;
@@ -28,13 +28,13 @@ export class Member extends BaseEntity {
   @Field({ label: "头像", componentType: "avatar" })
   avatarUrl: string;
 
-  @Field({ label: "描述" })
+  @Field({ label: "描述", fieldSpan: 24 })
   description: string;
 
-  @Field({ label: "是否已初始化" })
+  @Field({ label: "已初始化" })
   isInitialized: boolean;
 
-  @Field({ label: "是否已封禁" })
+  @Field({ label: "已封禁" })
   isBlocked: boolean;
 
   @Field({
