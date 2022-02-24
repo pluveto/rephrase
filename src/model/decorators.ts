@@ -5,13 +5,19 @@ import {
   toPrimitive,
   valueOrDefault,
 } from "../util/type";
-import { TableOptions } from "./base";
 import { Symbols } from "./runtime";
-import { FieldOptions, IField, IModel, JoinOptions } from "./types";
+import {
+  FieldOptions,
+  IField,
+  IModel,
+  JoinOptions,
+  ModelOptions,
+} from "./types";
 import "reflect-metadata";
 import { inferComponentType } from "../util/frontend";
+import { camelCase, snakeCase } from "change-case";
 
-export function Table(tableOptions: TableOptions) {
+export function Model(modelOptions: ModelOptions) {
   return function (constructor: Function) {
     const modelId = classNameOf(constructor);
     let fields: Map<string, IField> = new Map();
@@ -26,13 +32,29 @@ export function Table(tableOptions: TableOptions) {
       fields = parentFields;
     }
 
-    const model: IModel = {
-      id: modelId,
-      table: tableOptions.table,
-      extends: parentModelId,
-      display: tableOptions.display || "",
-      fields: new Map(),
-    };
+    const model: IModel = (() => {
+      let moduleName = modelOptions.module || "App";
+
+      function buildTableName(moduleName: string, modelId: string): string {
+        return moduleName.toLowerCase() + "_" + snakeCase(modelId);
+      }
+
+      function buildServiceName(moduleName: string, modelId: string): string {
+        return camelCase(moduleName) + "." + camelCase(modelId);
+      }
+
+      let table = modelOptions.table || buildTableName(moduleName, modelId);
+      return {
+        id: modelId,
+        module: moduleName,
+        table,
+        extends: parentModelId,
+        label: modelOptions.label || "",
+        fields: new Map(),
+        servicePath:
+          modelOptions.servicePath || buildServiceName(moduleName, modelId),
+      } as IModel;
+    })();
     Symbols.mergeModel(model);
     Symbols.insertModelFields(modelId, fields);
   };
@@ -59,6 +81,11 @@ export function Field(meta: FieldOptions) {
       jsType: toPrimitive(typeName),
       componentType: meta.componentType || inferComponentType(typeName),
       join: processJoin(meta.join),
+      required: valueOrDefault(meta.required, true),
+      columnIndex: valueOrDefault(meta.columnIndex, 9),
+      columnMinWidth: valueOrDefault(meta.columnMinWidth, 120),
+      columnOverflowTip: valueOrDefault(meta.columnOverflowTip, false),
+      fieldSpan: valueOrDefault(meta.fieldSpan, 12),
     };
 
     let modelId = classNameOf(target.constructor);

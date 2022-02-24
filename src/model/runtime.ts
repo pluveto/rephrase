@@ -8,7 +8,7 @@ class SymbolTable {
     if (existing) {
       extendMap(existing.fields, model.fields);
       existing.id = existing.id || model.id;
-      existing.display = existing.display || model.display;
+      existing.label = existing.label || model.label;
       existing.table = existing.table || model.table;
     } else {
       this.addModel(model);
@@ -70,9 +70,11 @@ class SymbolTable {
       // throw new Error("model not found: " + modelId);
       model = {
         id: modelId,
-        display: "",
+        label: "",
         table: "",
         extends: "",
+        module: "",
+        servicePath: "",
         fields: new Map(),
       };
       this.addModel(model);

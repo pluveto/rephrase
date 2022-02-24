@@ -1,38 +1,31 @@
-import { Field, Table as Model } from "../model/decorators";
-
+import { Field, Model } from "../model/decorators";
 
 /**
  * 模型基类
  */
 export class BaseEntity {
-  @Field({ label: "ID", editable: false, columnIndex:0 })
+  @Field({ label: "ID", editable: false, columnIndex: 0 })
   id: number;
-  @Field({ label: "创建时间", editable: false, columnIndex:999 })
+  @Field({ label: "创建时间", editable: false, columnIndex: 999 })
   createTime: Date;
-  @Field({ label: "修改时间", editable: false, columnIndex:999 })
+  @Field({ label: "修改时间", editable: false, columnIndex: 999 })
   updateTime: Date;
 }
 
-
-
-
-@Model({ table: "jl_member_wechat", display: "会员微信" })
-export class JlMemberWechat extends BaseEntity {
+@Model({ table: "jl_member_wechat", label: "会员微信" })
+export class MemberWechat extends BaseEntity {
   @Field({ label: "用户ID" })
   memberId: string;
   @Field({ label: "微信 OpenID" })
   openId: string;
 }
 
-/**
- * 描述
- */
-@Model({ table: "jl_member", display: "会员" })
-export class JlMember extends BaseEntity {
+@Model({ table: "jl_member", label: "会员" })
+export class Member extends BaseEntity {
   @Field({ label: "昵称" })
   screenName: string;
 
-  @Field({ label: "头像" , componentType: "avatar"})
+  @Field({ label: "头像", componentType: "avatar" })
   avatarUrl: string;
 
   @Field({ label: "描述" })

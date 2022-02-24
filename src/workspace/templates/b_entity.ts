@@ -14,7 +14,7 @@ import { BaseEntity } from '@cool-midway/core';
 import { Column } from 'typeorm';
 
 /**
- * ${model.display}
+ * ${model.label}
  */
 @EntityModel('${model.table}')
 export class ${model.id}Entity extends BaseEntity {

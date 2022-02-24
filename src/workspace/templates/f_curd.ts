@@ -1,7 +1,11 @@
 import chalk from "chalk";
 import { t } from "../../util/template";
 import { classNameOf } from "../../util/type";
-import { renderColumn, renderComponent, renderFieldRule } from "../util/component";
+import {
+  renderColumn,
+  renderComponent,
+  renderFieldRule,
+} from "../util/component";
 
 export function renderCurd(f: Function) {
   let modelId = classNameOf(f);
@@ -82,32 +86,9 @@ export default defineComponent({
 				},
 				${fields
           .filter((f) => !f.extended && !f.join)
-		  .sort((a, b) => a.columnIndex - b.columnIndex)
+          .sort((a, b) => a.columnIndex - b.columnIndex)
           .map((f) => renderColumn(f))
           .join(",")}
-				{
-					prop: "label",
-					label: "标识",
-					minWidth: 120
-				},
-				{
-					prop: "remark",
-					label: "备注",
-					showOverflowTooltip: true,
-					minWidth: 150
-				},
-				{
-					prop: "createTime",
-					label: "创建时间",
-					sortable: "custom",
-					minWidth: 150
-				},
-				{
-					prop: "updateTime",
-					label: "更新时间",
-					sortable: "custom",
-					minWidth: 150
-				},
 				{
 					label: "操作",
 					type: "op"
@@ -117,7 +98,7 @@ export default defineComponent({
 
 		// crud 加载
 		function onLoad({ ctx, app }: CrudLoad) {
-			ctx.service(service.jl.member).done();
+			ctx.service(service.${model.servicePath}).done();
 			app.refresh();
 		}
 

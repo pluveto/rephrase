@@ -51,9 +51,14 @@ export function renderColumn(f: IField): string {
     label: f.label,
     minWidth: f.columnMinWidth || defaultColumnMinWidth,
     ...(() => {
+      let ret = {} as any;
       if (f.jsType == "Date") {
-        return { sortable: "custom" };
+        ret.sortable = "custom";
       }
+      if (f.columnOverflowTip) {
+        ret.showOverflowTooltip = true;
+      }
+      return ret;
     })(),
   };
   return JSON.stringify(column, null, 2);
