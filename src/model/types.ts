@@ -6,17 +6,31 @@ export interface JoinOptions {
   condition: [string, string];
 }
 
+export type componentType = "input" | "textarea" | "integer" | "avatar";
+
+export type FieldOptions = Partial<IField>;
+
 export interface IField {
-  id?: string;
-  // 显示名称
-  display: string;
-  // 是否可编辑
-  editable?: boolean;
+  id: string;
+  label: string;
+  extended: boolean;
+  required: boolean;
+  editable: boolean;
+  jsType: string;
+  componentType: componentType;
+  columnIndex: any;
+  columnVisible: boolean;
+  columnMinWidth: number;
+  fieldSpan: number;
   join?: JoinOptions | null;
 }
+
+export type ModelOptions = Partial<IModel>;
 
 export interface IModel {
   id: string;
   table: string;
+  extends: string;
+  display: string;
   fields: Map<string, IField>;
 }

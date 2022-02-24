@@ -6,6 +6,19 @@ export function classNameOf<T extends Function>(constructor: T): string {
   return constructor.toString().match(/\w+/g)![1];
 }
 
+export function toPrimitive(typeName: string): string {
+  switch (typeName) {
+    case "String":
+      return "string";
+    case "Number":
+      return "number";
+    case "Boolean":
+      return "boolean";
+    default:
+      return typeName;
+  }
+}
+
 export function extendMap(target: Map<any, any>, source: Map<any, any>) {
   source.forEach((value, key) => {
     target.set(key, value);

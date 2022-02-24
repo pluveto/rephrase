@@ -3,7 +3,17 @@ import { IField, IModel } from "./types";
 
 // Save model infomations
 class SymbolTable {
-  
+  mergeModel(model: IModel) {
+    let existing = this.ModelMap.get(model.id);
+    if (existing) {
+      extendMap(existing.fields, model.fields);
+      existing.id = existing.id || model.id;
+      existing.display = existing.display || model.display;
+      existing.table = existing.table || model.table;
+    } else {
+      this.addModel(model);
+    }
+  }
   // == Properties ==
 
   ModelMap: Map<string, IModel>;
@@ -17,8 +27,7 @@ class SymbolTable {
   // add model to the symbol table
   addModel(model: IModel) {
     if (this.ModelMap.has(model.id)) {
-      console.info("model already exists: " + model.id);
-      return;
+      throw new Error("model already exists: " + model.id);
     }
     this.ModelMap.set(model.id, model);
     console.debug(`add model: ${model.id}`);
@@ -27,7 +36,6 @@ class SymbolTable {
   // -- model's fields operations --
   // insert fields in front of the model fields
   insertModelFields(modelId: string, source: Map<string, IField>) {
-    
     // 下面的方式会导致顺序上派生类的成员在父类之前:
     // let fields = this.getModelFields(modelId);
     // extendMap(fields, source);
@@ -36,6 +44,7 @@ class SymbolTable {
     let fields = this.getModelFields(modelId);
     let tmp = new Map();
     source.forEach((value, key) => {
+      value.extended = true;
       tmp.set(key, value);
     });
     fields.forEach((value, key) => {
@@ -61,7 +70,9 @@ class SymbolTable {
       // throw new Error("model not found: " + modelId);
       model = {
         id: modelId,
+        display: "",
         table: "",
+        extends: "",
         fields: new Map(),
       };
       this.addModel(model);

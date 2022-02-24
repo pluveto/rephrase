@@ -2,13 +2,14 @@ import {
   classNameOf,
   extendMap,
   NullableOrUndef,
+  toPrimitive,
   valueOrDefault,
 } from "../util/type";
 import { TableOptions } from "./base";
 import { Symbols } from "./runtime";
-import { IField, IModel, JoinOptions } from "./types";
-
-
+import { FieldOptions, IField, IModel, JoinOptions } from "./types";
+import "reflect-metadata";
+import { inferComponentType } from "../util/frontend";
 
 export function Table(tableOptions: TableOptions) {
   return function (constructor: Function) {
@@ -16,25 +17,28 @@ export function Table(tableOptions: TableOptions) {
     let fields: Map<string, IField> = new Map();
     // if is extended from parent, then load parent's fields
     let parent = constructor.prototype.__proto__;
+    let parentModelId = "";
     if (parent) {
-      let parentModelId = classNameOf(parent.constructor);
+      parentModelId = classNameOf(parent.constructor);
       console.debug(`${modelId} extends ${parentModelId}`);
       let parentFields = Symbols.getModelFields(parentModelId);
-      console.log("parentFields", parentFields);
+      // console.log("parentFields", parentFields);
       fields = parentFields;
     }
 
     const model: IModel = {
       id: modelId,
-      table: tableOptions.name,
+      table: tableOptions.table,
+      extends: parentModelId,
+      display: tableOptions.display || "",
       fields: new Map(),
     };
-    Symbols.addModel(model);
+    Symbols.mergeModel(model);
     Symbols.insertModelFields(modelId, fields);
   };
 }
 
-export function Field(meta: IField) {
+export function Field(meta: FieldOptions) {
   function processJoin(join: NullableOrUndef<JoinOptions>): JoinOptions | null {
     if (!join) {
       return null;
@@ -42,20 +46,22 @@ export function Field(meta: IField) {
     return join;
   }
 
-  return (targetObject: Object, propertyKey: string) => {
-    if (
-      typeof targetObject.constructor.prototype["__fields__"] === "undefined"
-    ) {
-      targetObject.constructor.prototype["__fields__"] = [];
-    }
+  return (target: Object, key: string) => {
+    var type = Reflect.getMetadata("design:type", target, key);
+    let typeName = type.name;
 
     let field: Required<IField> = {
-      id: propertyKey,
-      display: meta.display,
+      id: key,
+      label: meta.label || "",
+      extended: false,
       editable: valueOrDefault(meta.editable, true),
+      columnVisible: valueOrDefault(meta.columnVisible, true),
+      jsType: toPrimitive(typeName),
+      componentType: meta.componentType || inferComponentType(typeName),
       join: processJoin(meta.join),
     };
 
-    Symbols.upsertModelField(classNameOf(targetObject.constructor), field);
+    let modelId = classNameOf(target.constructor);
+    Symbols.upsertModelField(modelId, field);
   };
 }
