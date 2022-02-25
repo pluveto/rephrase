@@ -3,8 +3,7 @@ import chalk from "chalk";
 import { t } from "../../util/template";
 
 export function renderEntity(modelCtor: Function) {
-  let modelId = classNameOf(modelCtor);
-  let model = t.model(modelId);
+  let model = t.model(classNameOf(modelCtor));
 
   return `
 import { EntityModel } from '@midwayjs/orm';
@@ -17,7 +16,7 @@ import { Column } from 'typeorm';
 @EntityModel('${model.table}')
 export class ${model.module}${model.id}Entity extends BaseEntity {
 ${t
-  .fields(modelId)
+  .fields(model.id)
   .filter((f) => f.editable && !f.extended && !f.join)
   .map((field) => {
     return `

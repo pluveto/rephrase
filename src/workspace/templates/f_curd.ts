@@ -8,9 +8,8 @@ import {
 } from "../util/component";
 
 export function renderCurd(modelCtor: Function) {
-  let modelId = classNameOf(modelCtor);
-  let model = t.model(modelId);
-  let fields = t.fields(modelId);
+  let model = t.model(classNameOf(modelCtor));
+  let fields = t.fields(model.id);
 
   return `
 <template>

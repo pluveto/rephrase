@@ -17,3 +17,12 @@ export function mustGetEnv(key: string): string {
   }
   return value;
 }
+
+export const dbOptions = {
+  type: mustGetEnv("DB_TYPE") as any,
+  host: mustGetEnv("DB_HOST"),
+  port: parseInt(mustGetEnv("DB_PORT")),
+  username: mustGetEnv("DB_USERNAME"),
+  password: mustGetEnv("DB_PASSWORD"),
+  database: mustGetEnv("DB_DATABASE"),
+};
